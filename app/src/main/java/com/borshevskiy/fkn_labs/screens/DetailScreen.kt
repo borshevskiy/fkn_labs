@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,22 +20,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.borshevskiy.fkn_labs.MainViewModel
 import com.borshevskiy.fkn_labs.utils.Hero
 
 @Composable
-fun DetailScreen(heroName: String?, navController: NavController) {
-    var hero = Hero.DEADPOOL
-    when(heroName) {
-        Hero.IRONMAN.heroName -> hero = Hero.IRONMAN
-        Hero.CAPTAINAMERICA.heroName -> hero = Hero.CAPTAINAMERICA
-        Hero.SPIDERMAN.heroName -> hero = Hero.SPIDERMAN
-        Hero.DOCTORSTRANGE.heroName -> hero = Hero.DOCTORSTRANGE
-        Hero.THOR.heroName -> hero = Hero.THOR
-        Hero.THANOS.heroName -> hero = Hero.THANOS
-    }
+fun DetailScreen(heroId: Int?, navController: NavController, viewModel: MainViewModel) {
+    val currentHero = viewModel.marvelHeroes
+        .observeAsState().value?.data?.results?.firstOrNull {
+            it.id == heroId
+        }
     Box {
         AsyncImage(modifier = Modifier.fillMaxSize(),
-            model = hero.heroImageLink,
+            model = "${currentHero?.thumbnail?.path}.${currentHero?.thumbnail?.extension}",
             contentDescription = null,
             contentScale = ContentScale.Crop)
         IconButton(onClick = { navController.popBackStack() }) {
@@ -45,11 +42,11 @@ fun DetailScreen(heroName: String?, navController: NavController) {
             .padding(20.dp),
             contentAlignment = Alignment.BottomStart) {
             Column {
-                Text(text = hero.heroName,
+                Text(text = currentHero?.name ?: "",
                     color = Color.White,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 30.sp)
-                Text(text = hero.heroDesc,
+                Text(text = currentHero?.description ?: "",
                     color = Color.White,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 30.sp)
