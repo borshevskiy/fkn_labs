@@ -1,4 +1,4 @@
-package com.borshevskiy.fkn_labs.navigation
+package com.borshevskiy.fkn_labs.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -6,9 +6,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.borshevskiy.fkn_labs.MainViewModel
-import com.borshevskiy.fkn_labs.screens.DetailScreen
-import com.borshevskiy.fkn_labs.screens.MainScreen
+import com.borshevskiy.fkn_labs.presentation.MainViewModel
+import com.borshevskiy.fkn_labs.presentation.screens.DetailScreen
+import com.borshevskiy.fkn_labs.presentation.screens.MainScreen
 import com.borshevskiy.fkn_labs.utils.Constants.Key.HERO_ID
 import com.borshevskiy.fkn_labs.utils.Constants.Screens.DETAIL_SCREEN
 import com.borshevskiy.fkn_labs.utils.Constants.Screens.MAIN_SCREEN

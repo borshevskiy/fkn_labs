@@ -1,15 +1,13 @@
-package com.borshevskiy.fkn_labs
+package com.borshevskiy.fkn_labs.presentation
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.borshevskiy.fkn_labs.navigation.SetupNavHost
-import com.borshevskiy.fkn_labs.ui.theme.*
+import com.borshevskiy.fkn_labs.presentation.navigation.SetupNavHost
+import com.borshevskiy.fkn_labs.presentation.ui.theme.Fkn_labsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 

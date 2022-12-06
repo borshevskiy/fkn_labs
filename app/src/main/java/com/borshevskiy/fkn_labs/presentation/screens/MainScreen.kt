@@ -1,4 +1,4 @@
-package com.borshevskiy.fkn_labs.screens
+package com.borshevskiy.fkn_labs.presentation.screens
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -31,10 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.borshevskiy.fkn_labs.MainViewModel
+import com.borshevskiy.fkn_labs.presentation.MainViewModel
 import com.borshevskiy.fkn_labs.data.network.model.MarvelResponseDto
-import com.borshevskiy.fkn_labs.navigation.Screen
-import com.borshevskiy.fkn_labs.ui.theme.*
+import com.borshevskiy.fkn_labs.domain.MarvelHero
+import com.borshevskiy.fkn_labs.presentation.navigation.Screen
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 import dev.chrisbanes.snapper.rememberLazyListSnapperLayoutInfo
 import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
@@ -44,7 +44,7 @@ import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 @Composable
 fun MainScreen(navController: NavController, viewModel: MainViewModel) {
     val allHeroes = viewModel.marvelHeroes.observeAsState().value
-    allHeroes?.data?.results?.forEach { Log.d("TEST", "HeroID: ${it.id} HeroName: ${it.name} HeroImage: ${it.thumbnail.path}.${it.thumbnail.extension}") }
+    allHeroes?.forEach { Log.d("TEST", "HeroID: ${it.id} HeroName: ${it.name} HeroImage: ${it.imageLink}") }
     val backGroundState = mutableStateOf(Color.White)
     Surface(modifier = Modifier.fillMaxSize(), color = Color.DarkGray) {
         Box(modifier = Modifier
@@ -72,7 +72,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 
 @ExperimentalSnapperApi
 @Composable
-fun HeroList(heroList: MarvelResponseDto?, backGroundState: MutableState<Color>, navController: NavController) {
+fun HeroList(heroList: List<MarvelHero>?, backGroundState: MutableState<Color>, navController: NavController) {
     val lazyListState = rememberLazyListState()
     val layoutInfo =
         rememberLazyListSnapperLayoutInfo(lazyListState)
@@ -86,10 +86,10 @@ fun HeroList(heroList: MarvelResponseDto?, backGroundState: MutableState<Color>,
     LazyRow(state = lazyListState,
         flingBehavior = rememberSnapperFlingBehavior(lazyListState)
     ) {
-        heroList?.data?.results?.let {
+        heroList?.let {
             items(it.take(20)) {
-                if (!it.thumbnail.path.contains("image_not_available")) {
-                    HeroCard(heroImage = "${it.thumbnail.path}.${it.thumbnail.extension}", heroId = it.id, heroName = it.name, navController = navController)
+                if (!it.imageLink.contains("image_not_available")) {
+                    HeroCard(heroImage = it.imageLink, heroId = it.id, heroName = it.name, navController = navController)
                 }
             }
         }
@@ -116,7 +116,7 @@ fun HeroCard(heroImage: String, heroName: String, heroId: Int, navController: Na
                     .padding(20.dp),
                     contentAlignment = Alignment.BottomStart) {
                     Text(text = heroName,
-                        color = Color.Black,
+                        color = Color.White,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 30.sp)
                 }

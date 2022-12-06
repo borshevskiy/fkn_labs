@@ -1,4 +1,4 @@
-package com.borshevskiy.fkn_labs.screens
+package com.borshevskiy.fkn_labs.presentation.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,18 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.borshevskiy.fkn_labs.MainViewModel
-import com.borshevskiy.fkn_labs.utils.Hero
+import com.borshevskiy.fkn_labs.presentation.MainViewModel
 
 @Composable
 fun DetailScreen(heroId: Int?, navController: NavController, viewModel: MainViewModel) {
-    val currentHero = viewModel.marvelHeroes
-        .observeAsState().value?.data?.results?.firstOrNull {
+    val currentHero = viewModel.marvelHeroes.observeAsState().value?.firstOrNull {
             it.id == heroId
         }
     Box {
         AsyncImage(modifier = Modifier.fillMaxSize(),
-            model = "${currentHero?.thumbnail?.path}.${currentHero?.thumbnail?.extension}",
+            model = currentHero?.imageLink,
             contentDescription = null,
             contentScale = ContentScale.Crop)
         IconButton(onClick = { navController.popBackStack() }) {
