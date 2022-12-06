@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.borshevskiy.fkn_labs.presentation.MainViewModel
-import com.borshevskiy.fkn_labs.data.network.model.MarvelResponseDto
 import com.borshevskiy.fkn_labs.domain.MarvelHero
 import com.borshevskiy.fkn_labs.presentation.navigation.Screen
 import dev.chrisbanes.snapper.ExperimentalSnapperApi

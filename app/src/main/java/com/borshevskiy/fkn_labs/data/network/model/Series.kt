@@ -1,15 +1,17 @@
 package com.borshevskiy.fkn_labs.data.network.model
 
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Series(
-    @SerializedName("available")
+    @Json(name = "available")
     val available: Int,
-    @SerializedName("collectionURI")
+    @Json(name = "collectionURI")
     val collectionURI: String,
-    @SerializedName("items")
+    @Json(name = "items")
     val items: List<Item>,
-    @SerializedName("returned")
+    @Json(name = "returned")
     val returned: Int
 )

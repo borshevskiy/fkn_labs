@@ -1,11 +1,13 @@
 package com.borshevskiy.fkn_labs.data.network.model
 
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Thumbnail(
-    @SerializedName("extension")
+    @Json(name = "extension")
     val extension: String,
-    @SerializedName("path")
+    @Json(name = "path")
     val path: String
 )

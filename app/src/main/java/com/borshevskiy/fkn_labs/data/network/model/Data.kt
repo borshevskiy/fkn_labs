@@ -1,17 +1,19 @@
 package com.borshevskiy.fkn_labs.data.network.model
 
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Data(
-    @SerializedName("count")
+    @Json(name = "count")
     val count: Int,
-    @SerializedName("limit")
+    @Json(name = "limit")
     val limit: Int,
-    @SerializedName("offset")
+    @Json(name = "offset")
     val offset: Int,
-    @SerializedName("results")
+    @Json(name = "results")
     val results: List<Result>,
-    @SerializedName("total")
+    @Json(name = "total")
     val total: Int
 )

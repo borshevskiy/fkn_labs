@@ -1,29 +1,31 @@
 package com.borshevskiy.fkn_labs.data.network.model
 
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Result(
-    @SerializedName("comics")
+    @Json(name = "comics")
     val comics: Comics,
-    @SerializedName("description")
+    @Json(name = "description")
     val description: String,
-    @SerializedName("events")
+    @Json(name = "events")
     val events: Events,
-    @SerializedName("id")
+    @Json(name = "id")
     val id: Int,
-    @SerializedName("modified")
+    @Json(name = "modified")
     val modified: String,
-    @SerializedName("name")
+    @Json(name = "name")
     val name: String,
-    @SerializedName("resourceURI")
+    @Json(name = "resourceURI")
     val resourceURI: String,
-    @SerializedName("series")
+    @Json(name = "series")
     val series: Series,
-    @SerializedName("stories")
+    @Json(name = "stories")
     val stories: Stories,
-    @SerializedName("thumbnail")
+    @Json(name = "thumbnail")
     val thumbnail: Thumbnail,
-    @SerializedName("urls")
+    @Json(name = "urls")
     val urls: List<Url>
 )

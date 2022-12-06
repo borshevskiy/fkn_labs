@@ -1,21 +1,23 @@
 package com.borshevskiy.fkn_labs.data.network.model
 
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class MarvelResponseDto(
-    @SerializedName("attributionHTML")
+    @Json(name = "attributionHTML")
     val attributionHTML: String,
-    @SerializedName("attributionText")
+    @Json(name = "attributionText")
     val attributionText: String,
-    @SerializedName("code")
+    @Json(name = "code")
     val code: Int,
-    @SerializedName("copyright")
+    @Json(name = "copyright")
     val copyright: String,
-    @SerializedName("data")
+    @Json(name = "data")
     val `data`: Data,
-    @SerializedName("etag")
+    @Json(name = "etag")
     val etag: String,
-    @SerializedName("status")
+    @Json(name = "status")
     val status: String
 )
