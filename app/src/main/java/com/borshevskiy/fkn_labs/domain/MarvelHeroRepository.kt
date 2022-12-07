@@ -6,4 +6,8 @@ interface MarvelHeroRepository {
 
     suspend fun getMarvelHeroesList(): NetworkResult<List<MarvelHero>>
 
+    fun readMarvelHeroesList(): List<MarvelHero>
+
+    fun readMarvelHeroInfo(id: Int): MarvelHero
+
 }
