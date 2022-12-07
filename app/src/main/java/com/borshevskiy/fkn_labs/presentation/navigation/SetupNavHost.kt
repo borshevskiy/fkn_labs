@@ -7,11 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.borshevskiy.fkn_labs.presentation.MainViewModel
+import com.borshevskiy.fkn_labs.presentation.navigation.Screen.Companion.HERO_ID
 import com.borshevskiy.fkn_labs.presentation.screens.DetailScreen
 import com.borshevskiy.fkn_labs.presentation.screens.MainScreen
-import com.borshevskiy.fkn_labs.utils.Constants.Key.HERO_ID
-import com.borshevskiy.fkn_labs.utils.Constants.Screens.DETAIL_SCREEN
-import com.borshevskiy.fkn_labs.utils.Constants.Screens.MAIN_SCREEN
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 
 sealed class Screen(val route: String) {
@@ -23,6 +21,12 @@ sealed class Screen(val route: String) {
             append(route)
             args.forEach { append("/$it") }
         }
+    }
+
+    companion object {
+        const val MAIN_SCREEN = "main_screen"
+        const val DETAIL_SCREEN = "detail_screen"
+        const val HERO_ID = "heroId"
     }
 }
 

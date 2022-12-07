@@ -1,8 +1,9 @@
 package com.borshevskiy.fkn_labs.domain
 
+import com.borshevskiy.fkn_labs.utils.NetworkResult
+
 interface MarvelHeroRepository {
 
-    suspend fun getMarvelHeroesList(): List<MarvelHero>
+    suspend fun getMarvelHeroesList(): NetworkResult<List<MarvelHero>>
 
-    suspend fun getCurrentMarvelHero(id: Int): MarvelHero
 }

@@ -1,7 +1,6 @@
 package com.borshevskiy.fkn_labs.presentation.screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,11 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,19 +27,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.borshevskiy.fkn_labs.presentation.MainViewModel
 import com.borshevskiy.fkn_labs.domain.MarvelHero
+import com.borshevskiy.fkn_labs.presentation.MainViewModel
 import com.borshevskiy.fkn_labs.presentation.navigation.Screen
+import com.borshevskiy.fkn_labs.utils.AnimatedShimmer
+import com.borshevskiy.fkn_labs.utils.NetworkResult
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
-import dev.chrisbanes.snapper.rememberLazyListSnapperLayoutInfo
 import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 
 @SuppressLint("UnrememberedMutableState")
 @ExperimentalSnapperApi
 @Composable
 fun MainScreen(navController: NavController, viewModel: MainViewModel) {
-    val allHeroes = viewModel.marvelHeroes.observeAsState().value
-    allHeroes?.forEach { Log.d("TEST", "HeroID: ${it.id} HeroName: ${it.name} HeroImage: ${it.imageLink}") }
+
+    val allHeroes = viewModel.marvelHeroes.observeAsState()
     val backGroundState = mutableStateOf(Color.White)
     Surface(modifier = Modifier.fillMaxSize(), color = Color.DarkGray) {
         Box(modifier = Modifier
@@ -62,19 +59,28 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                     color = Color.White,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 30.sp)
-                HeroList(allHeroes, backGroundState, navController)
+                    when(allHeroes.value) {
+                        is NetworkResult.Success -> HeroList(allHeroes.value?.data, backGroundState, navController)
+                        is NetworkResult.Error -> ErrorMessage(message = "${allHeroes.value?.message}")
+                        else -> AnimatedShimmer()
+                    }
             }
         }
     }
 }
 
+@Composable
+fun ErrorMessage(message: String) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) { Text(text = message) }
+}
 
 @ExperimentalSnapperApi
 @Composable
 fun HeroList(heroList: List<MarvelHero>?, backGroundState: MutableState<Color>, navController: NavController) {
     val lazyListState = rememberLazyListState()
-    val layoutInfo =
-        rememberLazyListSnapperLayoutInfo(lazyListState)
 
     LaunchedEffect(lazyListState.isScrollInProgress) {
         if (!lazyListState.isScrollInProgress) {
@@ -87,8 +93,10 @@ fun HeroList(heroList: List<MarvelHero>?, backGroundState: MutableState<Color>, 
     ) {
         heroList?.let {
             items(it.take(20)) {
-                if (!it.imageLink.contains("image_not_available")) {
-                    HeroCard(heroImage = it.imageLink, heroId = it.id, heroName = it.name, navController = navController)
+                with(it) {
+                    if (!imageLink.contains("image_not_available")) {
+                        HeroCard(heroImage = imageLink, heroId = id, heroName = name, navController = navController)
+                    }
                 }
             }
         }

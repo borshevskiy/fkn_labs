@@ -24,9 +24,11 @@ import com.borshevskiy.fkn_labs.presentation.MainViewModel
 
 @Composable
 fun DetailScreen(heroId: Int?, navController: NavController, viewModel: MainViewModel) {
-    val currentHero = viewModel.marvelHeroes.observeAsState().value?.firstOrNull {
-            it.id == heroId
-        }
+
+    /** Посчитал не целесообразным повторное обращение к апи для получения информации о герое,
+     * т.к. мы можем просто передать его параметры с главного скрина на детейл скрин */
+
+    val currentHero = viewModel.marvelHeroes.observeAsState().value?.data?.firstOrNull { it.id == heroId }
     Box {
         AsyncImage(modifier = Modifier.fillMaxSize(),
             model = currentHero?.imageLink,
@@ -44,7 +46,7 @@ fun DetailScreen(heroId: Int?, navController: NavController, viewModel: MainView
                     color = Color.White,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 30.sp)
-                Text(text = currentHero?.description ?: "",
+                Text(text = if (currentHero!!.description.isNullOrEmpty()) { "This should be some desc" } else { "" },
                     color = Color.White,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 30.sp)
