@@ -40,32 +40,61 @@ import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 @Composable
 fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 
-    val allHeroes = viewModel.marvelHeroes.observeAsState()
+    val allHeroes = viewModel.marvelHeroes.observeAsState().value
+    val cache = viewModel.readMarvelHeroesList().observeAsState(listOf()).value
     val backGroundState = mutableStateOf(Color.White)
+
     Surface(modifier = Modifier.fillMaxSize(), color = Color.DarkGray) {
-        Box(modifier = Modifier
-            .padding(top = 250.dp)
-            .clip(shape = CutCornerShape(topStart = 450.dp))
-            .background(backGroundState.value))
+        Box(
+            modifier = Modifier
+                .padding(top = 250.dp)
+                .clip(shape = CutCornerShape(topStart = 450.dp))
+                .background(backGroundState.value)
+        )
         Box {
-            Column(modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(modifier = Modifier
-                    .width(200.dp)
-                    .padding(25.dp),
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .padding(25.dp),
                     painter = painterResource(id = com.borshevskiy.fkn_labs.R.drawable.marvel),
-                    contentDescription = null)
-                Text(text = stringResource(com.borshevskiy.fkn_labs.R.string.choose_your_hero),
+                    contentDescription = null
+                )
+                Text(
+                    text = stringResource(com.borshevskiy.fkn_labs.R.string.choose_your_hero),
                     color = Color.White,
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 30.sp)
-                    when(allHeroes.value) {
-                        is NetworkResult.Success -> HeroList(allHeroes.value?.data, backGroundState, navController)
-                        is NetworkResult.Error -> ErrorMessage(message = "${allHeroes.value?.message}")
-                        else -> AnimatedShimmer()
-                    }
+                    fontSize = 30.sp
+                )
+                showApiResponseOrDBCache(allHeroes, backGroundState, navController, cache)
             }
         }
+    }
+}
+
+@ExperimentalSnapperApi
+@Composable
+private fun showApiResponseOrDBCache(
+    allHeroes: NetworkResult<List<MarvelHero>>?,
+    backGroundState: MutableState<Color>,
+    navController: NavController,
+    cache: List<MarvelHero>
+) {
+    when (allHeroes) {
+        is NetworkResult.Success -> HeroList(
+            allHeroes.data,
+            backGroundState,
+            navController
+        )
+        is NetworkResult.Error -> {
+            if (cache.isNotEmpty()) {
+                HeroList(cache, backGroundState, navController)
+            } else ErrorMessage(message = "${allHeroes.message}")
+        }
+        else -> AnimatedShimmer()
     }
 }
 
@@ -79,7 +108,11 @@ fun ErrorMessage(message: String) {
 
 @ExperimentalSnapperApi
 @Composable
-fun HeroList(heroList: List<MarvelHero>?, backGroundState: MutableState<Color>, navController: NavController) {
+fun HeroList(
+    heroList: List<MarvelHero>?,
+    backGroundState: MutableState<Color>,
+    navController: NavController
+) {
     val lazyListState = rememberLazyListState()
 
     LaunchedEffect(lazyListState.isScrollInProgress) {
@@ -88,44 +121,50 @@ fun HeroList(heroList: List<MarvelHero>?, backGroundState: MutableState<Color>, 
         }
     }
 
-    LazyRow(state = lazyListState,
+    LazyRow(
+        state = lazyListState,
         flingBehavior = rememberSnapperFlingBehavior(lazyListState)
     ) {
         heroList?.let {
             items(it.take(20)) {
-                with(it) {
-                    if (!imageLink.contains("image_not_available")) {
-                        HeroCard(heroImage = imageLink, heroId = id, heroName = name, navController = navController)
-                    }
-                }
+                HeroCard(marvelHero = it, navController = navController)
             }
         }
     }
 }
 
 @Composable
-fun HeroCard(heroImage: String, heroName: String, heroId: Int, navController: NavController) {
+fun HeroCard(marvelHero: MarvelHero, navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
-        Card(modifier = Modifier
-            .fillMaxHeight()
-            .width(400.dp)
-            .padding(40.dp)
-            .clickable { navController.navigate(Screen.DetailScreen.withArgs(heroId)) },
+        Card(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(400.dp)
+                .padding(40.dp)
+                .clickable {
+                    navController.currentBackStackEntry?.savedStateHandle?.set("marvelHero", marvelHero)
+                    navController.navigate(Screen.DetailScreen.route) },
             shape = RoundedCornerShape(16.dp)
         ) {
             Box {
-                AsyncImage(modifier = Modifier.fillMaxSize(),
-                    model = heroImage,
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize(),
+                    model = marvelHero.imageLink,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop)
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                    contentAlignment = Alignment.BottomStart) {
-                    Text(text = heroName,
+                    contentScale = ContentScale.Crop
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp),
+                    contentAlignment = Alignment.BottomStart
+                ) {
+                    Text(
+                        text = marvelHero.name,
                         color = Color.White,
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 30.sp)
+                        fontSize = 30.sp
+                    )
                 }
             }
         }

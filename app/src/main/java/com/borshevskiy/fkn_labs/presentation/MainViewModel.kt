@@ -4,9 +4,13 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.borshevskiy.fkn_labs.domain.GetMarvelHeroesListUseCase
 import com.borshevskiy.fkn_labs.domain.MarvelHero
+import com.borshevskiy.fkn_labs.domain.ReadMarvelHeroesListUseCase
 import com.borshevskiy.fkn_labs.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -15,8 +19,17 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getMarvelHeroesListUseCase: GetMarvelHeroesListUseCase,
+    private val readMarvelHeroesListUseCase: ReadMarvelHeroesListUseCase,
     application: Application
     ): AndroidViewModel(application) {
+
+    /** ROOM DATABASE **/
+
+    fun readMarvelHeroesList() = readMarvelHeroesListUseCase()
+
+    /** ----------------------------------------------------- **/
+
+    /** RETROFIT **/
 
     private val _marvelHeroes = MutableLiveData<NetworkResult<List<MarvelHero>>>()
     val marvelHeroes: LiveData<NetworkResult<List<MarvelHero>>>
@@ -50,6 +63,8 @@ class MainViewModel @Inject constructor(
             else -> false
         }
     }
+
+    /** ----------------------------------------------------- **/
 
     init {
         getAllHeroesSafeCall()
