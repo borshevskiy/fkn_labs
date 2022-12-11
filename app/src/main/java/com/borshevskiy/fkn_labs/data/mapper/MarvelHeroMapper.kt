@@ -17,7 +17,7 @@ class MarvelHeroMapper @Inject constructor() {
 
     fun mapDtoToMarvelHeroDbModel(dto: MarvelResponseDto) = dto.data.results.map { mapResultToMarvelHeroDbModel(it) }
 
-    fun mapMarvelHeroDbModelToMarvelHero(marvelHeroDbModel: MarvelHeroDbModel)
+    private fun mapMarvelHeroDbModelToMarvelHero(marvelHeroDbModel: MarvelHeroDbModel)
             = with(marvelHeroDbModel) { MarvelHero(id, name, description, imageLink) }
 
     fun mapListDbModelToMarvelHero(listDbModel: List<MarvelHeroDbModel>) = listDbModel.map { mapMarvelHeroDbModelToMarvelHero(it) }
