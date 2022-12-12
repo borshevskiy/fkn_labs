@@ -11,7 +11,7 @@ data class Stories(
     @Json(name = "collectionURI")
     val collectionURI: String,
     @Json(name = "items")
-    val items: List<ItemXXX>,
+    val items: List<HeroItem>,
     @Json(name = "returned")
     val returned: Int
 )

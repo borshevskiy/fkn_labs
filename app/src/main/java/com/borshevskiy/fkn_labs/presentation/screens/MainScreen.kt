@@ -14,7 +14,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,8 +39,8 @@ import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 @Composable
 fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 
-    val allHeroes = viewModel.marvelHeroes.observeAsState().value
-    val cache = viewModel.readMarvelHeroesList().observeAsState(listOf()).value
+    val allHeroes = viewModel.marvelHeroes.collectAsState().value
+    val cache = viewModel.readMarvelHeroesList().collectAsState(listOf()).value
     val backGroundState = mutableStateOf(Color.White)
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.DarkGray) {

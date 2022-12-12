@@ -1,13 +1,13 @@
 package com.borshevskiy.fkn_labs.data.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.borshevskiy.fkn_labs.data.database.MarvelHeroDao
 import com.borshevskiy.fkn_labs.data.mapper.MarvelHeroMapper
 import com.borshevskiy.fkn_labs.data.network.ApiService
 import com.borshevskiy.fkn_labs.domain.MarvelHero
 import com.borshevskiy.fkn_labs.domain.MarvelHeroRepository
 import com.borshevskiy.fkn_labs.utils.NetworkResult
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapLatest
 import javax.inject.Inject
 
 class MarvelHeroRepositoryImpl @Inject constructor(
@@ -33,8 +33,8 @@ class MarvelHeroRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun readMarvelHeroesList(): LiveData<List<MarvelHero>> {
-        return Transformations.map(marvelHeroDao.getHeroesList()) {
+    override fun readMarvelHeroesList(): Flow<List<MarvelHero>> {
+        return marvelHeroDao.getHeroesList().mapLatest {
             mapper.mapListDbModelToMarvelHero(it)
         }
     }

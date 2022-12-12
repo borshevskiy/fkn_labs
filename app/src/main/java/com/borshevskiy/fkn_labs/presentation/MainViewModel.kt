@@ -5,14 +5,14 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.borshevskiy.fkn_labs.domain.GetMarvelHeroesListUseCase
 import com.borshevskiy.fkn_labs.domain.MarvelHero
 import com.borshevskiy.fkn_labs.domain.ReadMarvelHeroesListUseCase
 import com.borshevskiy.fkn_labs.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,12 +31,11 @@ class MainViewModel @Inject constructor(
 
     /** RETROFIT **/
 
-    private val _marvelHeroes = MutableLiveData<NetworkResult<List<MarvelHero>>>()
-    val marvelHeroes: LiveData<NetworkResult<List<MarvelHero>>>
-        get() = _marvelHeroes
+    private val _marvelHeroes
+    = MutableStateFlow<NetworkResult<List<MarvelHero>>>(NetworkResult.Loading())
+    val marvelHeroes: StateFlow<NetworkResult<List<MarvelHero>>> get() = _marvelHeroes
 
     private fun getAllHeroesSafeCall() {
-        _marvelHeroes.value = NetworkResult.Loading()
         viewModelScope.launch {
             if (hasInternetConnection()) {
                 try {

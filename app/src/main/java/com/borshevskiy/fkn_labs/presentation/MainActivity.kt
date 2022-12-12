@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Fkn_labsTheme {
-                SetupNavHost(navController = rememberNavController(), hiltViewModel())
+                SetupNavHost(rememberNavController(), hiltViewModel())
             }
         }
     }
