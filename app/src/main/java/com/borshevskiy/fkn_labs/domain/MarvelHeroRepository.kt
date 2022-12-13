@@ -1,12 +1,11 @@
 package com.borshevskiy.fkn_labs.domain
 
-import com.borshevskiy.fkn_labs.utils.NetworkResult
-import kotlinx.coroutines.flow.Flow
+import com.borshevskiy.fkn_labs.domain.utils.NetworkResult
 
 interface MarvelHeroRepository {
 
     suspend fun getMarvelHeroesList(): NetworkResult<List<MarvelHero>>
 
-    fun readMarvelHeroesList(): Flow<List<MarvelHero>>
+    fun readMarvelHeroesList(): List<MarvelHero>
 
 }

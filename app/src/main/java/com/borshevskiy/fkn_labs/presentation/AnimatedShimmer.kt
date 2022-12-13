@@ -1,4 +1,4 @@
-package com.borshevskiy.fkn_labs.utils
+package com.borshevskiy.fkn_labs.presentation
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background

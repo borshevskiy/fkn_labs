@@ -1,6 +1,7 @@
 package com.borshevskiy.fkn_labs.presentation.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,10 +28,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.borshevskiy.fkn_labs.domain.MarvelHero
+import com.borshevskiy.fkn_labs.presentation.AnimatedShimmer
 import com.borshevskiy.fkn_labs.presentation.MainViewModel
 import com.borshevskiy.fkn_labs.presentation.navigation.Screen
-import com.borshevskiy.fkn_labs.utils.AnimatedShimmer
-import com.borshevskiy.fkn_labs.utils.NetworkResult
+import com.borshevskiy.fkn_labs.domain.utils.NetworkResult
+import com.borshevskiy.fkn_labs.presentation.MarvelHeroState
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 
@@ -39,9 +41,8 @@ import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 @Composable
 fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 
-    val allHeroes = viewModel.marvelHeroes.collectAsState().value
-    val cache = viewModel.readMarvelHeroesList().collectAsState(listOf()).value
     val backGroundState = mutableStateOf(Color.White)
+    Log.d("TEST", "${viewModel.state}")
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.DarkGray) {
         Box(
@@ -68,7 +69,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 30.sp
                 )
-                showApiResponseOrDBCache(allHeroes, backGroundState, navController, cache)
+                showApiResponseOrDBCache(viewModel.state, backGroundState, navController)
             }
         }
     }
@@ -77,24 +78,25 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 @ExperimentalSnapperApi
 @Composable
 private fun showApiResponseOrDBCache(
-    allHeroes: NetworkResult<List<MarvelHero>>?,
+    marvelHeroState: MarvelHeroState,
     backGroundState: MutableState<Color>,
-    navController: NavController,
-    cache: List<MarvelHero>
-) {
-    when (allHeroes) {
-        is NetworkResult.Success -> HeroList(
-            allHeroes.data,
-            backGroundState,
-            navController
-        )
-        is NetworkResult.Error -> {
-            if (cache.isNotEmpty()) {
-                HeroList(cache, backGroundState, navController)
-            } else ErrorMessage(message = "${allHeroes.message}")
-        }
-        else -> AnimatedShimmer()
-    }
+    navController: NavController) {
+    marvelHeroState.marvelHeroList?.let { HeroList(it, backGroundState, navController) }
+    if (marvelHeroState.isLoading) { AnimatedShimmer() }
+    marvelHeroState.error?.let { ErrorMessage(message = it) }
+
+
+//        is NetworkResult.Success -> HeroList(
+//            allHeroes.data,
+//            backGroundState,
+//            navController
+//        )
+//        is NetworkResult.Error -> {
+//            if (cache.isNotEmpty()) {
+//                HeroList(cache, backGroundState, navController)
+//            } else ErrorMessage(message = "${allHeroes.message}")
+//        }
+//        else -> AnimatedShimmer()
 }
 
 @Composable
@@ -141,8 +143,10 @@ fun HeroCard(marvelHero: MarvelHero, navController: NavController) {
                 .width(400.dp)
                 .padding(40.dp)
                 .clickable {
-                    navController.currentBackStackEntry?.savedStateHandle?.set("marvelHero", marvelHero)
-                    navController.navigate(Screen.DetailScreen.route) },
+                    navController.currentBackStackEntry?.savedStateHandle?.set("marvelHero",
+                        marvelHero)
+                    navController.navigate(Screen.DetailScreen.route)
+                },
             shape = RoundedCornerShape(16.dp)
         ) {
             Box {

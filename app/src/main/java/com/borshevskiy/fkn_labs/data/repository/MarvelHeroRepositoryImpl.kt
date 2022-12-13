@@ -5,9 +5,7 @@ import com.borshevskiy.fkn_labs.data.mapper.MarvelHeroMapper
 import com.borshevskiy.fkn_labs.data.network.ApiService
 import com.borshevskiy.fkn_labs.domain.MarvelHero
 import com.borshevskiy.fkn_labs.domain.MarvelHeroRepository
-import com.borshevskiy.fkn_labs.utils.NetworkResult
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.mapLatest
+import com.borshevskiy.fkn_labs.domain.utils.NetworkResult
 import javax.inject.Inject
 
 class MarvelHeroRepositoryImpl @Inject constructor(
@@ -33,9 +31,5 @@ class MarvelHeroRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun readMarvelHeroesList(): Flow<List<MarvelHero>> {
-        return marvelHeroDao.getHeroesList().mapLatest {
-            mapper.mapListDbModelToMarvelHero(it)
-        }
-    }
+    override fun readMarvelHeroesList(): List<MarvelHero> = mapper.mapListDbModelToMarvelHero(marvelHeroDao.getHeroesList())
 }
