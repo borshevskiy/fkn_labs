@@ -1,4 +1,4 @@
-package com.borshevskiy.fkn_labs.presentation.ui.theme
+package com.borshevskiy.fkn_labs.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
