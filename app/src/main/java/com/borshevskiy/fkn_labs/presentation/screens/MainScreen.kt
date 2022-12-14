@@ -28,11 +28,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.borshevskiy.fkn_labs.domain.MarvelHero
-import com.borshevskiy.fkn_labs.presentation.AnimatedShimmer
-import com.borshevskiy.fkn_labs.presentation.MainViewModel
+import com.borshevskiy.fkn_labs.presentation.*
 import com.borshevskiy.fkn_labs.presentation.navigation.Screen
-import com.borshevskiy.fkn_labs.domain.utils.NetworkResult
-import com.borshevskiy.fkn_labs.presentation.MarvelHeroState
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 
@@ -41,8 +38,9 @@ import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 @Composable
 fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 
+    val state = viewModel.state.collectAsState().value
     val backGroundState = mutableStateOf(Color.White)
-    Log.d("TEST", "${viewModel.state}")
+    Log.d("TEST", "$state")
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.DarkGray) {
         Box(
@@ -69,7 +67,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 30.sp
                 )
-                showApiResponseOrDBCache(viewModel.state, backGroundState, navController)
+                ShowApiResponseOrDBCache(state, backGroundState, navController, viewModel)
             }
         }
     }
@@ -77,26 +75,19 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 
 @ExperimentalSnapperApi
 @Composable
-private fun showApiResponseOrDBCache(
-    marvelHeroState: MarvelHeroState,
+private fun ShowApiResponseOrDBCache(
+    state: MainState,
     backGroundState: MutableState<Color>,
-    navController: NavController) {
-    marvelHeroState.marvelHeroList?.let { HeroList(it, backGroundState, navController) }
-    if (marvelHeroState.isLoading) { AnimatedShimmer() }
-    marvelHeroState.error?.let { ErrorMessage(message = it) }
-
-
-//        is NetworkResult.Success -> HeroList(
-//            allHeroes.data,
-//            backGroundState,
-//            navController
-//        )
-//        is NetworkResult.Error -> {
-//            if (cache.isNotEmpty()) {
-//                HeroList(cache, backGroundState, navController)
-//            } else ErrorMessage(message = "${allHeroes.message}")
-//        }
-//        else -> AnimatedShimmer()
+    navController: NavController,
+    viewModel: MainViewModel) {
+    state.marvelHeroList?.let { HeroList(it, backGroundState, navController) }
+    if (state.isLoading) {
+        viewModel.obtainEvent(LoadFromApiEvent())
+        AnimatedShimmer()
+    }
+    state.error?.let {
+        viewModel.obtainEvent(GetCacheFromDBEvent())
+        ErrorMessage(message = it) }
 }
 
 @Composable
@@ -127,8 +118,8 @@ fun HeroList(
         flingBehavior = rememberSnapperFlingBehavior(lazyListState)
     ) {
         heroList?.let {
-            items(it.take(20)) {
-                HeroCard(marvelHero = it, navController = navController)
+            items(it.take(20)) { marvelHero ->
+                HeroCard(marvelHero = marvelHero, navController = navController)
             }
         }
     }

@@ -4,10 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.borshevskiy.fkn_labs.domain.GetMarvelHeroesListUseCase
@@ -15,6 +11,8 @@ import com.borshevskiy.fkn_labs.domain.ReadMarvelHeroesListUseCase
 import com.borshevskiy.fkn_labs.domain.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,28 +20,36 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val getMarvelHeroesListUseCase: GetMarvelHeroesListUseCase,
     private val readMarvelHeroesListUseCase: ReadMarvelHeroesListUseCase,
-    application: Application
-): AndroidViewModel(application) {
+    application: Application,
+) : AndroidViewModel(application) {
 
-    var state by mutableStateOf(MarvelHeroState(isLoading = true))
-        private set
+    private val _state = MutableStateFlow(MainState(isLoading = true))
+    val state: StateFlow<MainState> = _state
+
+    fun obtainEvent(event: MainEvent) {
+        when (event) {
+            is LoadFromApiEvent -> getAllHeroesFromApiSafeCall()
+            is GetCacheFromDBEvent -> getCache()
+        }
+    }
 
 
-    private fun getAllHeroesSafeCall() {
+    private fun getAllHeroesFromApiSafeCall() {
         viewModelScope.launch {
             if (hasInternetConnection()) {
-                state = when (val response = getMarvelHeroesListUseCase()) {
-                    is NetworkResult.Success -> state.copy(marvelHeroList = response.data)
-                    is NetworkResult.Error -> state.copy(error = response.message)
+                _state.value = when (val response = getMarvelHeroesListUseCase()) {
+                    is NetworkResult.Success -> MainState(response.data, false, null)
+                    is NetworkResult.Error -> MainState(null, false, response.message)
                 }
-            } else {
-                state = state.copy(isLoading = false, error = "No Internet Connection.")
-                viewModelScope.launch(Dispatchers.IO) {
-                    val cache = readMarvelHeroesListUseCase()
-                    Log.d("TEST", "$cache")
-                }
-//                    state = if (cache.isNotEmpty()) state.copy(marvelHeroList = cache) else state.copy(isLoading = false, error = "No Internet Connection.")
-            }
+            } else _state.value = MainState(null, false, "No Internet Connection.")
+        }
+    }
+
+    private fun getCache() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val cache = readMarvelHeroesListUseCase()
+            if (cache.isNotEmpty()) _state.value = MainState(cache, false, null) else _state.value =
+                MainState(null, false, "No Internet Connection.\nNo Cache.")
         }
     }
 
@@ -59,9 +65,5 @@ class MainViewModel @Inject constructor(
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
             else -> false
         }
-    }
-
-    init {
-        getAllHeroesSafeCall()
     }
 }
