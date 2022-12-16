@@ -1,5 +1,6 @@
 package com.borshevskiy.fkn_labs.data.repository
 
+import android.util.Log
 import com.borshevskiy.fkn_labs.data.database.MarvelHeroDao
 import com.borshevskiy.fkn_labs.data.mapper.MarvelHeroMapper
 import com.borshevskiy.fkn_labs.data.network.ApiService
@@ -19,13 +20,25 @@ class MarvelHeroRepositoryImpl @Inject constructor(
         return when {
             response.message().toString().contains("timeout") -> NetworkResult.Error("Timeout")
             response.code() == 409 -> NetworkResult.Error("Invalid Response.")
-            response.body()!!.data.results.isEmpty() -> NetworkResult.Error("Characters not found")
             response.isSuccessful -> {
                 /** Очищаю БД перед загрузкой новых героев, т.к. из-за рандомизатара подгружаются
                  * каждый раз новые персонажи **/
                 marvelHeroDao.deleteAll()
                 marvelHeroDao.insertMarvelHeroList(mapper.mapDtoToMarvelHeroDbModel(response.body()!!))
                 NetworkResult.Success(mapper.mapDtoToMarvelHero(response.body()!!))
+            }
+            else -> NetworkResult.Error(response.message())
+        }
+    }
+
+    override suspend fun getMarvelHeroInfo(heroId: Int): NetworkResult<MarvelHero> {
+        val response = apiService.getHeroDetailInfo(heroId)
+        Log.d("TEST", "$response")
+        return when {
+            response.message().toString().contains("timeout") -> NetworkResult.Error("Timeout")
+            response.code() == 409 -> NetworkResult.Error("Invalid Response.")
+            response.isSuccessful -> {
+                NetworkResult.Success(mapper.mapDtoToMarvelHero(response.body()!!).first())
             }
             else -> NetworkResult.Error(response.message())
         }

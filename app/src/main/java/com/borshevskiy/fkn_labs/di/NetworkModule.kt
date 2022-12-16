@@ -15,6 +15,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.sql.Timestamp
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -53,9 +54,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(interceptor: Interceptor): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(interceptor)
-        .build()
+    fun provideOkHttpClient(interceptor: Interceptor): OkHttpClient =
+        OkHttpClient.Builder().addInterceptor(interceptor)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build()
 
     @Singleton
     @Provides

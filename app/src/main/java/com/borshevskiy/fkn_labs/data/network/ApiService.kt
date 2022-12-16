@@ -13,7 +13,5 @@ interface ApiService {
     ): Response<MarvelResponseDto>
 
     @GET("/v1/public/characters/")
-    suspend fun getHeroDetailInfo(
-        @Query("characterId")characterId:Int
-    ): Response<MarvelResponseDto>
+    suspend fun getHeroDetailInfo(characterId:Int): Response<MarvelResponseDto>
 }
