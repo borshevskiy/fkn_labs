@@ -2,17 +2,14 @@ package com.borshevskiy.fkn_labs
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.borshevskiy.fkn_labs.presentation.navigation.SetupNavHost
 import com.borshevskiy.fkn_labs.presentation.ui.theme.Fkn_labsTheme
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
-
 
 @ExperimentalSnapperApi
 @AndroidEntryPoint
@@ -20,9 +17,6 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnrememberedMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseMessaging.getInstance().token.addOnSuccessListener(this) {
-                Log.d("FCMToken", it)
-            }
         setContent {
             Fkn_labsTheme {
                 SetupNavHost(rememberNavController(), hiltViewModel())

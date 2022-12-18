@@ -1,6 +1,5 @@
 package com.borshevskiy.fkn_labs.presentation.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,34 +27,34 @@ import com.borshevskiy.fkn_labs.presentation.MainViewModel
 fun DetailScreen(heroId: Int, navController: NavController, viewModel: MainViewModel) {
 
     val state = viewModel.state.collectAsState().value
-    Log.d("TEST", "$state")
-    var marvelHero = state.marvelHeroList?.firstOrNull { it.id == heroId }
-    if (state.heroInfo == null) {
+    if (state.heroInfo == null || state.heroInfo.id != heroId) {
         viewModel.obtainEvent(LoadHeroInfoFromApiEvent(heroId))
     }
 
-//    Box {
-//        AsyncImage(modifier = Modifier.fillMaxSize(),
-//            model = marvelHero?.imageLink,
-//            contentDescription = null,
-//            contentScale = ContentScale.Crop)
-//        IconButton(onClick = { navController.popBackStack() }) {
-//            Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null, tint = Color.White)
-//        }
-//        Box(modifier = Modifier
-//            .fillMaxSize()
-//            .padding(20.dp),
-//            contentAlignment = Alignment.BottomStart) {
-//            Column {
-//                Text(text = marvelHero!!.name,
-//                    color = Color.White,
-//                    fontWeight = FontWeight.ExtraBold,
-//                    fontSize = 30.sp)
-//                Text(text = marvelHero.description.ifEmpty { "This should be some desc" },
-//                    color = Color.White,
-//                    fontWeight = FontWeight.ExtraBold,
-//                    fontSize = 30.sp)
-//            }
-//        }
-//    }
+    state.heroInfo?.let {
+        Box {
+            AsyncImage(modifier = Modifier.fillMaxSize(),
+                model = it.imageLink,
+                contentDescription = null,
+                contentScale = ContentScale.Crop)
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null, tint = Color.White)
+            }
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+                contentAlignment = Alignment.BottomStart) {
+                Column {
+                    Text(text = it.name,
+                        color = Color.White,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 30.sp)
+                    Text(text = it.description.ifEmpty { "This should be some desc" },
+                        color = Color.White,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 30.sp)
+                }
+            }
+        }
+    }
 }

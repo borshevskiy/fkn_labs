@@ -4,12 +4,10 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.borshevskiy.fkn_labs.domain.GetMarvelHeroInfoUseCase
-import com.borshevskiy.fkn_labs.domain.GetMarvelHeroesListUseCase
+import com.borshevskiy.fkn_labs.domain.MarvelHeroInfoUseCase
+import com.borshevskiy.fkn_labs.domain.MarvelHeroesListUseCase
 import com.borshevskiy.fkn_labs.domain.ReadMarvelHeroesListUseCase
 import com.borshevskiy.fkn_labs.domain.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,20 +19,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getMarvelHeroesListUseCase: GetMarvelHeroesListUseCase,
+    private val marvelHeroesListUseCase: MarvelHeroesListUseCase,
     private val readMarvelHeroesListUseCase: ReadMarvelHeroesListUseCase,
-    private val getMarvelHeroInfoUseCase: GetMarvelHeroInfoUseCase,
-    private val notificationBuilder: NotificationCompat.Builder,
-    private val notificationManager: NotificationManagerCompat,
+    private val marvelHeroInfoUseCase: MarvelHeroInfoUseCase,
     application: Application,
 ) : AndroidViewModel(application) {
 
     private val _state = MutableStateFlow(MainState(isLoading = true))
     val state: StateFlow<MainState> = _state
-
-    private fun showSimpleNotification() {
-        notificationManager.notify(1, notificationBuilder.build())
-    }
 
     fun obtainEvent(event: MainEvent) {
         when (event) {
@@ -47,31 +39,36 @@ class MainViewModel @Inject constructor(
     private fun getHeroInfoFromApiSafeCall(heroId: Int) {
         viewModelScope.launch {
             if (hasInternetConnection()) {
-                _state.value = when (val response = getMarvelHeroInfoUseCase(heroId)) {
-                    is NetworkResult.Success -> MainState(heroInfo = response.data, isLoading = false, error = null)
-                    is NetworkResult.Error -> MainState(null,null,false, response.message)
+                _state.value = when (val response = marvelHeroInfoUseCase(heroId)) {
+                    is NetworkResult.Success -> MainState(state.value.marvelHeroList, response.data, false, null)
+                    is NetworkResult.Error -> MainState(state.value.marvelHeroList, null, false, response.message)
                 }
-            } else _state.value = MainState(null,null,false, "No Internet Connection.")
+            } else {
+                if (!state.value.marvelHeroList.isNullOrEmpty()) {
+                    val hero = state.value.marvelHeroList!!.firstOrNull { it.id == heroId }
+                    _state.value = MainState(state.value.marvelHeroList, hero, false, null)
+                } else _state.value = MainState(state.value.marvelHeroList, null, false, "No Internet Connection.")
+            }
         }
     }
 
 
     private fun getAllHeroesFromApiSafeCall() {
-        _state.value = MainState(null,null, false, null)
+        _state.value = MainState(null, null, false, null)
         viewModelScope.launch {
             if (hasInternetConnection()) {
-                _state.value = when (val response = getMarvelHeroesListUseCase()) {
+                _state.value = when (val response = marvelHeroesListUseCase()) {
                     is NetworkResult.Success -> MainState(response.data, null, false, null)
-                    is NetworkResult.Error -> MainState(null, null,false, response.message)
+                    is NetworkResult.Error -> MainState(null, null, false, response.message)
                 }
-            } else _state.value = MainState(null,null,false, "No Internet Connection.")
+            } else _state.value = MainState(null, null, false, "No Internet Connection.")
         }
     }
 
     private fun getCache() {
         viewModelScope.launch(Dispatchers.IO) {
             val cache = readMarvelHeroesListUseCase()
-            if (cache.isNotEmpty()) _state.value = MainState(cache,null,false, null) else _state.value =
+            if (cache.isNotEmpty()) _state.value = MainState(cache,null, false, null) else _state.value =
                 MainState(null,null,false, "No Internet Connection.\nNo Cache.")
         }
     }
@@ -88,9 +85,5 @@ class MainViewModel @Inject constructor(
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
             else -> false
         }
-    }
-
-    init {
-        showSimpleNotification()
     }
 }

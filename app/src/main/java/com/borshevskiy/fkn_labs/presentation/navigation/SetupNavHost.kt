@@ -8,8 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.borshevskiy.fkn_labs.presentation.MainViewModel
-import com.borshevskiy.fkn_labs.presentation.navigation.Screen.Companion.FROM_NOTIFICATION
 import com.borshevskiy.fkn_labs.presentation.navigation.Screen.Companion.HERO_ID
+import com.borshevskiy.fkn_labs.presentation.navigation.Screen.Companion.MARVEL_URI
 import com.borshevskiy.fkn_labs.presentation.screens.DetailScreen
 import com.borshevskiy.fkn_labs.presentation.screens.MainScreen
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
@@ -24,7 +24,7 @@ sealed class Screen(val route: String) {
         const val MAIN_SCREEN = "main_screen"
         const val DETAIL_SCREEN = "detail_screen"
         const val HERO_ID = "heroId"
-        const val FROM_NOTIFICATION = "fromNotification"
+        const val MARVEL_URI = "https://marvel.com/"
     }
 }
 
@@ -36,7 +36,7 @@ fun SetupNavHost(navController: NavHostController, viewModel: MainViewModel) {
         composable(
             route = Screen.DetailScreen.route,
             arguments = listOf(navArgument(HERO_ID) { type = NavType.IntType }),
-            deepLinks = listOf(navDeepLink { uriPattern = "$FROM_NOTIFICATION/$HERO_ID={$HERO_ID}" })
+            deepLinks = listOf(navDeepLink { uriPattern = "$MARVEL_URI/$HERO_ID={$HERO_ID}" })
         ) {
             it.arguments?.getInt(HERO_ID)?.let { heroId -> DetailScreen(heroId, navController, viewModel)}
         }

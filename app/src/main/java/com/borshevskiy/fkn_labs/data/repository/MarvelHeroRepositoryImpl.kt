@@ -1,6 +1,5 @@
 package com.borshevskiy.fkn_labs.data.repository
 
-import android.util.Log
 import com.borshevskiy.fkn_labs.data.database.MarvelHeroDao
 import com.borshevskiy.fkn_labs.data.mapper.MarvelHeroMapper
 import com.borshevskiy.fkn_labs.data.network.ApiService
@@ -16,31 +15,26 @@ class MarvelHeroRepositoryImpl @Inject constructor(
 ) : MarvelHeroRepository {
 
     override suspend fun getMarvelHeroesList(): NetworkResult<List<MarvelHero>> {
-        val response = apiService.getAllHeroes()
-        return when {
-            response.message().toString().contains("timeout") -> NetworkResult.Error("Timeout")
-            response.code() == 409 -> NetworkResult.Error("Invalid Response.")
-            response.isSuccessful -> {
-                /** Очищаю БД перед загрузкой новых героев, т.к. из-за рандомизатара подгружаются
-                 * каждый раз новые персонажи **/
-                marvelHeroDao.deleteAll()
-                marvelHeroDao.insertMarvelHeroList(mapper.mapDtoToMarvelHeroDbModel(response.body()!!))
-                NetworkResult.Success(mapper.mapDtoToMarvelHero(response.body()!!))
+        apiService.getAllHeroes().let {
+            return when {
+                it.isSuccessful -> {
+                    /** Очищаю БД перед загрузкой новых героев, т.к. из-за рандомизатара подгружаются
+                     * каждый раз новые персонажи **/
+                    marvelHeroDao.deleteAll()
+                    marvelHeroDao.insertMarvelHeroList(mapper.mapDtoToMarvelHeroDbModel(it.body()!!))
+                    NetworkResult.Success(mapper.mapDtoToMarvelHero(it.body()!!))
+                }
+                else -> NetworkResult.Error(it.message())
             }
-            else -> NetworkResult.Error(response.message())
         }
     }
 
     override suspend fun getMarvelHeroInfo(heroId: Int): NetworkResult<MarvelHero> {
-        val response = apiService.getHeroDetailInfo(heroId)
-        Log.d("TEST", "$response")
-        return when {
-            response.message().toString().contains("timeout") -> NetworkResult.Error("Timeout")
-            response.code() == 409 -> NetworkResult.Error("Invalid Response.")
-            response.isSuccessful -> {
-                NetworkResult.Success(mapper.mapDtoToMarvelHero(response.body()!!).first())
+        apiService.getHeroDetailInfo(heroId).let {
+            return when {
+                it.isSuccessful -> NetworkResult.Success(mapper.mapDtoToMarvelHero(it.body()!!).first())
+                else -> NetworkResult.Error(it.message())
             }
-            else -> NetworkResult.Error(response.message())
         }
     }
 

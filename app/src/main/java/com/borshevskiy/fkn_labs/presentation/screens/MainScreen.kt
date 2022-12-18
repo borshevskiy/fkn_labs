@@ -81,10 +81,10 @@ private fun ShowApiResponseOrDBCache(
     state.marvelHeroList?.let { HeroList(it, backGroundState, navController) }
     if (state.isLoading) {
         AnimatedShimmer()
-        viewModel.obtainEvent(LoadHeroListFromApiEvent())
+        viewModel.obtainEvent(LoadHeroListFromApiEvent)
     }
     state.error?.let {
-        viewModel.obtainEvent(GetCacheFromDBEvent())
+        viewModel.obtainEvent(GetCacheFromDBEvent)
         ErrorMessage(message = it) }
 }
 
