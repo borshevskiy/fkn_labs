@@ -1,7 +1,9 @@
 package com.borshevskiy.fkn_labs.presentation
 
-interface MainEvent
+sealed interface MainEvent
 
-class LoadFromApiEvent: MainEvent
+object LoadHeroListFromApiEvent : MainEvent
 
-class GetCacheFromDBEvent: MainEvent
+class LoadHeroInfoFromApiEvent(val heroId: Int) : MainEvent
+
+object GetCacheFromDBEvent : MainEvent

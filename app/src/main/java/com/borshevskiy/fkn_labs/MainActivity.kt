@@ -1,4 +1,4 @@
-package com.borshevskiy.fkn_labs.presentation
+package com.borshevskiy.fkn_labs
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -10,7 +10,6 @@ import com.borshevskiy.fkn_labs.presentation.navigation.SetupNavHost
 import com.borshevskiy.fkn_labs.presentation.ui.theme.Fkn_labsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
-
 
 @ExperimentalSnapperApi
 @AndroidEntryPoint

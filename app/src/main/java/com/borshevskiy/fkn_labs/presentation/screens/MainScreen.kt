@@ -1,7 +1,6 @@
 package com.borshevskiy.fkn_labs.presentation.screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,7 +39,6 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
 
     val state = viewModel.state.collectAsState().value
     val backGroundState = mutableStateOf(Color.White)
-    Log.d("TEST", "$state")
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.DarkGray) {
         Box(
@@ -82,11 +80,11 @@ private fun ShowApiResponseOrDBCache(
     viewModel: MainViewModel) {
     state.marvelHeroList?.let { HeroList(it, backGroundState, navController) }
     if (state.isLoading) {
-        viewModel.obtainEvent(LoadFromApiEvent())
         AnimatedShimmer()
+        viewModel.obtainEvent(LoadHeroListFromApiEvent)
     }
     state.error?.let {
-        viewModel.obtainEvent(GetCacheFromDBEvent())
+        viewModel.obtainEvent(GetCacheFromDBEvent)
         ErrorMessage(message = it) }
 }
 
@@ -134,9 +132,7 @@ fun HeroCard(marvelHero: MarvelHero, navController: NavController) {
                 .width(400.dp)
                 .padding(40.dp)
                 .clickable {
-                    navController.currentBackStackEntry?.savedStateHandle?.set("marvelHero",
-                        marvelHero)
-                    navController.navigate(Screen.DetailScreen.route)
+                    navController.navigate(Screen.DetailScreen.passArgument(marvelHero.id))
                 },
             shape = RoundedCornerShape(16.dp)
         ) {
